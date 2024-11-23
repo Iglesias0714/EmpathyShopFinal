@@ -37,6 +37,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ userId }) => {
         price: Number(price), // Asegurar que el precio sea un número
         image,
         category,
+        stock: 0, // Agregar un valor predeterminado para stock si es necesario
       });
 
       alert('Producto agregado con éxito.');
