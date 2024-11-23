@@ -2,11 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProductsFromFirestore } from '../services/productService';
 import { Product } from '../types';
-import { useAuth } from '../context/AuthContext';
 
 const Productos: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('Todos');
