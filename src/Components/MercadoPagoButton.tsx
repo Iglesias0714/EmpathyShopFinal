@@ -1,14 +1,15 @@
 import React from 'react';
 
 interface MercadoPagoButtonProps {
+  amount: number; // Total a pagar
   label?: string; // Texto del botón (opcional)
   onClick?: () => void; // Evento opcional al hacer clic
 }
 
-const MercadoPagoButton: React.FC<MercadoPagoButtonProps> = ({ label = 'Pagar con Mercado Pago', onClick }) => {
+const MercadoPagoButton: React.FC<MercadoPagoButtonProps> = ({ amount, label = 'Pagar con Mercado Pago', onClick }) => {
   const handlePayment = () => {
     if (onClick) onClick(); // Dispara el evento onClick si está definido
-    const paymentUrl = `https://link.mercadopago.com.mx/empathyshop`; // Tu enlace de Mercado Pago
+    const paymentUrl = `https://link.mercadopago.com.mx/empathyshop?amount=${amount}`; // Incluye el monto en la URL
     window.open(paymentUrl, '_blank'); // Abre el enlace de pago en una nueva pestaña
   };
 
