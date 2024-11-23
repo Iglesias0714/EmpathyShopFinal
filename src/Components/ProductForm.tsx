@@ -12,6 +12,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ userId }) => {
   const [price, setPrice] = useState<number | ''>(''); // Acepta tanto número como cadena vacía
   const [image, setImage] = useState('');
   const [category, setCategory] = useState<Product['category']>('movilidad');
+  const [stock, setStock] = useState<number>(0); // Añadido para cumplir con la validación
   const [loading, setLoading] = useState(false); // Indicador de carga
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,7 +38,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ userId }) => {
         price: Number(price), // Asegurar que el precio sea un número
         image,
         category,
-        stock: 0, // Agregar un valor predeterminado para stock si es necesario
+        stock, // Asegurarse de incluir el stock
       });
 
       alert('Producto agregado con éxito.');
@@ -48,6 +49,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ userId }) => {
       setPrice('');
       setImage('');
       setCategory('movilidad');
+      setStock(0); // Restablecer el stock
     } catch (error) {
       console.error('Error al agregar el producto:', error);
       alert('Hubo un error al agregar el producto. Intenta de nuevo.');
@@ -101,6 +103,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ userId }) => {
         <option value="salud y rehabilitación">Salud y Rehabilitación</option>
         <option value="productos para la vista">Productos para la Vista</option>
       </select>
+      <input
+        type="number"
+        placeholder="Cantidad en stock"
+        value={stock}
+        onChange={(e) => setStock(e.target.valueAsNumber)}
+        className="w-full p-2 border rounded"
+        required
+      />
       <button
         type="submit"
         className={`px-4 py-2 text-white rounded ${
