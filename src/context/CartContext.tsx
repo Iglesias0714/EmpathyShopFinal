@@ -4,7 +4,7 @@ import { Product } from '../types';
 interface CartContextType {
   cart: Product[];
   addToCart: (product: Product) => void;
-  removeFromCart: (id: number) => void;
+  removeFromCart: (id: string) => void; // Cambiar a tipo string
   clearCart: () => void;
 }
 
@@ -17,8 +17,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setCart((prevCart) => [...prevCart, product]);
   };
 
-  const removeFromCart = (id: number) => {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== id));
+  const removeFromCart = (id: string) => {
+    setCart((prevCart) => prevCart.filter((item) => item.id !== id)); // Comparación corregida
   };
 
   const clearCart = () => {
