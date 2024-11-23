@@ -6,7 +6,7 @@ import {
   addProductToFirestore,
 } from '../services/productService';
 import { Product } from '../types';
-import { PlusCircle, Edit, Trash2, X, Save, ChevronDown } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, X, Save } from 'lucide-react';
 
 const AdminProductos: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -111,7 +111,11 @@ const AdminProductos: React.FC = () => {
     }
   };
 
-  const renderForm = (data: Partial<Product>, setData: React.Dispatch<React.SetStateAction<Partial<Product>>>, isNewProduct: boolean = false) => (
+  const renderForm = (
+    data: Partial<Product>,
+    setData: React.Dispatch<React.SetStateAction<Partial<Product>>>,
+    isNewProduct: boolean = false
+  ) => (
     <>
       <input
         type="text"
@@ -151,7 +155,12 @@ const AdminProductos: React.FC = () => {
         value={data.category || ''}
         onChange={(e) => setData({ ...data, category: e.target.value })}
         className="w-full p-2 border rounded mb-2 appearance-none bg-white"
-        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23999' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.5rem center', backgroundSize: '1.5em 1.5em' }}
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23999' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'right 0.5rem center',
+          backgroundSize: '1.5em 1.5em',
+        }}
       >
         <option value="">Seleccionar Categoría</option>
         <option value="movilidad">Movilidad</option>
@@ -215,7 +224,10 @@ const AdminProductos: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.map((product) => (
-              <div key={product.id} className="bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105">
+              <div
+                key={product.id}
+                className="bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105"
+              >
                 {isEditing === product.id ? (
                   <div className="p-6">
                     <h3 className="text-2xl font-bold mb-4 text-indigo-800">Editar Producto</h3>
@@ -224,11 +236,7 @@ const AdminProductos: React.FC = () => {
                 ) : (
                   <>
                     <div className="w-full h-64 bg-gray-100 flex justify-center items-center overflow-hidden">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                     </div>
                     <div className="p-6">
                       <h3 className="text-xl font-bold mb-2 text-indigo-800">{product.name}</h3>
@@ -267,4 +275,3 @@ const AdminProductos: React.FC = () => {
 };
 
 export default AdminProductos;
-
