@@ -95,7 +95,7 @@ const ProductDetail: React.FC = () => {
                     Añadir al Carrito
                   </button>
                   <MercadoPagoButton
-                    amount={product.price}
+                    amount={product.price} // Asegúrate de que `product.price` sea un número
                     label="Comprar ahora"
                     onClick={() => console.log('Redirigiendo al pago de:', product.name)}
                   />
