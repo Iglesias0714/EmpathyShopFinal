@@ -16,6 +16,9 @@ import ProductDetail from './Components/ProductDetail';
 import ForgotPassword from './Components/ForgotPassword';
 
 const App: React.FC = () => {
+  // Define el valor de `amount` para el componente `Cart`
+  const defaultAmount = 0;
+
   return (
     <AuthProvider>
       <Router>
@@ -41,13 +44,15 @@ const App: React.FC = () => {
               <Route path="/productos" element={<Productos />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/about" element={<About />} />
-              <Route path="/cart" element={<Cart />} />
+              <Route
+                path="/cart"
+                element={<Cart amount={defaultAmount} />} // Pasamos `amount` aquí
+              />
 
               {/* Rutas de autenticación */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
-
 
               {/* Rutas administrativas */}
               <Route path="/admin" element={<Dashboard />} /> {/* Panel principal del admin */}
