@@ -1,11 +1,11 @@
-// Import the functions you need from the SDKs you need
+// Importar las funciones necesarias del SDK de Firebase
 import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getStorage } from "firebase/storage"; // Importar Firebase Storage
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Configuración de Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyC6qgptwHD8OeWn090ehS-t2r9dZQLUUiM",
   authDomain: "empathyshop-5749f.firebaseapp.com",
@@ -16,6 +16,14 @@ const firebaseConfig = {
   measurementId: "G-HY5J8CH7XG"
 };
 
-// Initialize Firebase
+// Inicializar Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
+
+// Inicializar Firestore (Base de datos), Auth (Autenticación) y Storage
+const db = getFirestore(app);    // Firestore
+const auth = getAuth(app);       // Autenticación
+const storage = getStorage(app); // Storage para cargar archivos
+
+// Exportar las instancias
+export { db, auth, storage, analytics };

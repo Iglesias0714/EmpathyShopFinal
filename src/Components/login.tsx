@@ -1,15 +1,32 @@
 import React, { useState } from 'react';
 import { UserCircle } from 'lucide-react';
+import { loginUser } from '../services/authService';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null); // Estado para el mensaje de éxito
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Aquí eventualmente se manejará el envío al backend
-    console.log('Email:', email);
-    console.log('Password:', password);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      await loginUser(email, password);
+      console.log('Inicio de sesión exitoso');
+      setSuccess('Inicio de sesión exitoso. Redirigiendo...');
+
+      // Redirige al usuario a la página principal después de unos segundos
+      setTimeout(() => {
+        navigate('/');
+      }, 3000); // Espera de 3 segundos
+    } catch (err) {
+      setError('Error al iniciar sesión. Verifique sus credenciales.');
+    }
   };
 
   return (
@@ -19,6 +36,8 @@ const Login: React.FC = () => {
           <UserCircle className="mx-auto h-16 w-16 text-[#4a9c2d]" />
           <h2 className="mt-4 text-3xl font-extrabold text-gray-900">Iniciar Sesión</h2>
         </div>
+        {error && <p className="text-red-500 text-center">{error}</p>}
+        {success && <p className="text-green-500 text-center">{success}</p>} {/* Mensaje de éxito */}
         <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
@@ -73,6 +92,15 @@ const Login: React.FC = () => {
             </button>
           </div>
         </form>
+
+        <div className="text-center mt-4">
+          <p className="text-sm text-gray-600">
+            ¿Eres usuario nuevo?{' '}
+            <Link to="/register" className="font-medium text-[#4a9c2d] hover:text-[#3a7c22]">
+              Regístrate aquí
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
