@@ -13,6 +13,7 @@ import AdminProductos from './Components/AdminProductos';
 import Dashboard from './Components/Dashboard';
 import { AuthProvider } from './context/AuthContext';
 import ProductDetail from './Components/ProductDetail';
+import ForgotPassword from './Components/ForgotPassword';
 
 const App: React.FC = () => {
   return (
@@ -45,6 +46,8 @@ const App: React.FC = () => {
               {/* Rutas de autenticación */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+
 
               {/* Rutas administrativas */}
               <Route path="/admin" element={<Dashboard />} /> {/* Panel principal del admin */}
