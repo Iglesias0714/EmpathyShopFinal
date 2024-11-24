@@ -14,6 +14,7 @@ import Dashboard from './Components/Dashboard';
 import { AuthProvider } from './context/AuthContext';
 import ProductDetail from './Components/ProductDetail';
 import ForgotPassword from './Components/ForgotPassword';
+import ProductStats from './Components/ProductStats';
 
 const App: React.FC = () => {
   // Define el valor de `amount` para el componente `Cart`
@@ -58,6 +59,7 @@ const App: React.FC = () => {
               <Route path="/admin" element={<Dashboard />} /> {/* Panel principal del admin */}
               <Route path="/admin/usuarios" element={<AdminUsuarios />} />
               <Route path="/admin/productos" element={<AdminProductos />} />
+              <Route path="/admin/productos/estadisticas" element={<ProductStats />} />
 
               {/* Ruta para el detalle de un producto */}
               <Route path="/producto/:id" element={<ProductDetail />} />

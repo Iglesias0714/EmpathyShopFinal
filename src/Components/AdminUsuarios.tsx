@@ -16,6 +16,7 @@ interface User {
 const AdminUsuarios: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totals, setTotals] = useState({ totalUsers: 0, totalMen: 0, totalWomen: 0 });
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -27,6 +28,13 @@ const AdminUsuarios: React.FC = () => {
           ...doc.data(),
         })) as User[];
         setUsers(usersList);
+
+        // Calcular totales
+        const totalUsers = usersList.length;
+        const totalMen = usersList.filter((user) => user.gender.toLowerCase() === 'hombre').length;
+        const totalWomen = usersList.filter((user) => user.gender.toLowerCase() === 'mujer').length;
+
+        setTotals({ totalUsers, totalMen, totalWomen });
       } catch (error) {
         console.error('Error al obtener usuarios:', error);
       } finally {
@@ -42,6 +50,15 @@ const AdminUsuarios: React.FC = () => {
       try {
         await deleteDoc(doc(db, 'users', userId));
         setUsers(users.filter((user) => user.id !== userId));
+
+        // Recalcular totales después de eliminar
+        const updatedUsers = users.filter((user) => user.id !== userId);
+        const totalUsers = updatedUsers.length;
+        const totalMen = updatedUsers.filter((user) => user.gender.toLowerCase() === 'hombre').length;
+        const totalWomen = updatedUsers.filter((user) => user.gender.toLowerCase() === 'mujer').length;
+
+        setTotals({ totalUsers, totalMen, totalWomen });
+
         alert('Usuario eliminado con éxito.');
       } catch (error) {
         console.error('Error al eliminar usuario:', error);
@@ -57,6 +74,23 @@ const AdminUsuarios: React.FC = () => {
           <Users className="w-10 h-10 mr-4" />
           Gestionar Usuarios
         </h2>
+
+        {/* Totales */}
+        <div className="bg-white shadow-xl rounded-lg p-6 mb-6 flex justify-around">
+          <div className="text-center">
+            <h3 className="text-2xl font-bold text-indigo-700">{totals.totalUsers}</h3>
+            <p className="text-gray-600">Total de Usuarios</p>
+          </div>
+          <div className="text-center">
+            <h3 className="text-2xl font-bold text-green-700">{totals.totalMen}</h3>
+            <p className="text-gray-600">Hombres Registrados</p>
+          </div>
+          <div className="text-center">
+            <h3 className="text-2xl font-bold text-pink-700">{totals.totalWomen}</h3>
+            <p className="text-gray-600">Mujeres Registradas</p>
+          </div>
+        </div>
+
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-indigo-500"></div>
@@ -113,4 +147,3 @@ const AdminUsuarios: React.FC = () => {
 };
 
 export default AdminUsuarios;
-
