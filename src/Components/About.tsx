@@ -31,7 +31,7 @@ const About: React.FC = () => {
         {/* Sección de imagen */}
         <div className="w-full md:w-1/2 flex justify-center mt-8 md:mt-0">
           <img
-            src=".\public\logo.png" // Reemplaza con la ruta de tu imagen
+            src="\logo.png" 
             alt="Sobre EmpathyShop"
             className="w-80 h-80 object-cover rounded-full shadow-lg border-4 border-[#4a9c2d]"
           />
