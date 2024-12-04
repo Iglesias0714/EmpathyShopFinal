@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   getProductsFromFirestore,
   updateProductInFirestore,
@@ -7,6 +8,7 @@ import {
 } from '../services/productService';
 import { Product } from '../types';
 import { PlusCircle, Edit, Trash2, X, Save } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const AdminProductos: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -23,6 +25,17 @@ const AdminProductos: React.FC = () => {
     stock: 0,
   });
 
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login'); // Redirige al login si no hay usuario autenticado
+    } else {
+      fetchProducts();
+    }
+  }, [user]);
+
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -34,11 +47,6 @@ const AdminProductos: React.FC = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
   const handleEdit = (product: Product) => {
     setIsEditing(product.id);
     setEditData({ ...product });
@@ -154,14 +162,7 @@ const AdminProductos: React.FC = () => {
       <select
         value={data.category || ''}
         onChange={(e) => setData({ ...data, category: e.target.value })}
-        className="w-full p-2 border rounded mb-2 appearance-none bg-white"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23999' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'right 0.5rem center',
-          backgroundSize: '1.5em 1.5em',
-        }}
-      >
+        className="w-full p-2 border rounded mb-2 appearance-none bg-white">
         <option value="">Seleccionar Categoría</option>
         <option value="movilidad">Movilidad</option>
         <option value="auditivos">Auditivos</option>
@@ -236,7 +237,8 @@ const AdminProductos: React.FC = () => {
                 ) : (
                   <>
                     <div className="w-full h-64 bg-gray-100 flex justify-center items-center overflow-hidden">
-                      <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                      <img
+                        src={product.image} alt={product.name} className="w-full h-full object-cover" />
                     </div>
                     <div className="p-6">
                       <h3 className="text-xl font-bold mb-2 text-indigo-800">{product.name}</h3>

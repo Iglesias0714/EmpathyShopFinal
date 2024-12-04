@@ -16,6 +16,7 @@ const Register: React.FC = () => {
     address: '',
   });
   const [error, setError] = useState<string | null>(null);
+  const [showAddressTooltip, setShowAddressTooltip] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -195,11 +196,19 @@ const Register: React.FC = () => {
                 name="address"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="Dirección"
+                placeholder="Dirección Completa"
                 value={formData.address}
                 onChange={handleChange}
                 rows={3}
+                onFocus={() => setShowAddressTooltip(true)}
+                onBlur={() => setShowAddressTooltip(false)}
               />
+              {showAddressTooltip && (
+                <div className="absolute left-0 -top-16 w-64 p-2 bg-gray-800 text-white text-xs rounded shadow-lg z-10">
+                  <p>Incluye: estado,                  municipio, localidad, calle y número de casa</p>
+                  <div className="absolute left-5 -bottom-2 w-4 h-4 bg-gray-800 transform rotate-45"></div>
+                </div>
+              )}
             </div>
           </div>
 

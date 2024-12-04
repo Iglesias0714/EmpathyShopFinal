@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Para redirigir
 import { db } from '../../firebase/firebaseConfig';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { Timestamp } from 'firebase/firestore';
 import { Trash2, Users } from 'lucide-react';
+import { useAuth } from '../context/AuthContext'; // Importar el contexto de autenticación
 
 interface User {
   id: string;
@@ -18,7 +20,16 @@ const AdminUsuarios: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [totals, setTotals] = useState({ totalUsers: 0, totalMen: 0, totalWomen: 0 });
 
+  const { user } = useAuth(); // Obtener el estado de usuario desde el contexto
+  const navigate = useNavigate(); // Hook para redirigir
+
   useEffect(() => {
+    // Redirigir al login si el usuario no está autenticado
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
     const fetchUsers = async () => {
       try {
         const usersCollection = collection(db, 'users');
@@ -41,8 +52,9 @@ const AdminUsuarios: React.FC = () => {
         setLoading(false);
       }
     };
+
     fetchUsers();
-  }, []);
+  }, [user, navigate]); // Escuchar cambios en el usuario o la navegación
 
   const handleDelete = async (userId: string) => {
     const confirmDelete = window.confirm('¿Estás seguro de que deseas eliminar este usuario?');

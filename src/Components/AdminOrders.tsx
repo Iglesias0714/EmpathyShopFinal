@@ -1,11 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { getOrdersFromFirestore, updateOrderStatus, Order } from '../services/orderService';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const AdminOrders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
   useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
     const fetchOrders = async () => {
       try {
         const ordersData = await getOrdersFromFirestore();
@@ -17,7 +27,7 @@ const AdminOrders: React.FC = () => {
       }
     };
     fetchOrders();
-  }, []);
+  }, [user, navigate]);
 
   const handleStatusChange = async (orderId: string, status: Order['status']) => {
     try {
@@ -35,88 +45,98 @@ const AdminOrders: React.FC = () => {
   };
 
   if (loading) {
-    return <p className="text-center text-gray-500">Cargando pedidos...</p>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-green-500"></div>
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h2 className="text-3xl font-bold text-center mb-6">Gestión de Pedidos</h2>
+    <div className="container mx-auto px-4 py-8 h-screen flex flex-col">
+      <h2 className="text-4xl font-bold text-center mb-6 text-green-700">Gestión de Pedidos</h2>
       {orders.length === 0 ? (
-        <p className="text-center text-gray-500">No hay pedidos registrados.</p>
+        <div className="flex-grow flex items-center justify-center bg-white rounded-lg shadow-md">
+          <p className="text-2xl text-gray-500">No hay pedidos registrados.</p>
+        </div>
       ) : (
-        <table className="table-auto w-full border-collapse border border-gray-300 rounded-md shadow-md">
-          <thead>
-            <tr className="bg-green-100 text-left text-gray-700">
-              <th className="px-4 py-2 border border-gray-300">Producto</th>
-              <th className="px-4 py-2 border border-gray-300">Cliente</th>
-              <th className="px-4 py-2 border border-gray-300">Estado</th>
-              <th className="px-4 py-2 border border-gray-300">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order, index) => (
-              <tr
-                key={order.id}
-                className={`${
-                  index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                } hover:bg-gray-100`}
-              >
-                <td className="px-4 py-4 border border-gray-300 flex items-center space-x-4">
-                  {order.product ? (
-                    <>
-                      <img
-                        src={order.product.image}
-                        alt={order.product.name}
-                        className="w-12 h-12 rounded-md object-cover"
-                      />
-                      <div>
-                        <p className="font-semibold text-gray-700">{order.product.name}</p>
-                        <p className="text-sm text-gray-500">{order.product.description}</p>
-                      </div>
-                    </>
-                  ) : (
-                    <div>
-                      <p className="font-semibold text-gray-700">Producto desconocido</p>
-                      <p className="text-sm text-gray-500">Sin descripción</p>
-                    </div>
-                  )}
-                </td>
-                <td className="px-4 py-4 border border-gray-300">
-                  {order.clientName || 'Cliente desconocido'}
-                </td>
-                <td className="px-4 py-4 border border-gray-300">
-                  <span
-                    className={`px-2 py-1 rounded-full text-sm font-semibold ${
-                      order.status === 'Entregado'
-                        ? 'bg-blue-100 text-blue-800'
-                        : order.status === 'Pagado'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-yellow-100 text-yellow-800'
+        <div className="flex-grow overflow-hidden bg-white rounded-lg shadow-lg flex flex-col">
+          <div className="overflow-x-auto flex-grow">
+            <table className="w-full">
+              <thead className="bg-green-600 text-white text-sm uppercase">
+                <tr>
+                  <th className="py-4 px-6 text-left">Producto</th>
+                  <th className="py-4 px-6 text-left">Cliente</th>
+                  <th className="py-4 px-6 text-center">Estado</th>
+                  <th className="py-4 px-6 text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="text-gray-600 text-sm">
+                {orders.map((order, index) => (
+                  <tr
+                    key={order.id}
+                    className={`border-b border-gray-200 hover:bg-gray-50 ${
+                      index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
                     }`}
                   >
-                    {order.status}
-                  </span>
-                </td>
-                <td className="px-4 py-4 border border-gray-300">
-                  <select
-                    value={order.status}
-                    onChange={(e) =>
-                      handleStatusChange(order.id, e.target.value as Order['status'])
-                    }
-                    className="border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-green-300"
-                  >
-                    <option value="Confirmación de pago">Confirmación de pago</option>
-                    <option value="Pagado">Pagado</option>
-                    <option value="Entregado">Entregado</option>
-                  </select>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center space-x-4">
+                        {order.product && (
+                          <img
+                            src={order.product.image}
+                            alt={order.product.name}
+                            className="w-16 h-16 rounded-full object-cover border-2 border-green-200"
+                          />
+                        )}
+                        <div>
+                          <p className="font-medium text-gray-800 text-base">
+                            {order.product ? order.product.name : 'Producto desconocido'}
+                          </p>
+                          <p className="text-sm text-gray-500 truncate max-w-xs">
+                            {order.product ? order.product.description : 'Sin descripción'}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className="font-medium text-base">{order.clientName || 'Cliente desconocido'}</span>
+                    </td>
+                    <td className="py-4 px-6 text-center">
+                      <span
+                        className={`px-3 py-2 rounded-full text-sm ${
+                          order.status === 'Entregado'
+                            ? 'bg-blue-100 text-blue-800'
+                            : order.status === 'Pagado'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}
+                      >
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6 text-center">
+                      <select
+                        value={order.status}
+                        onChange={(e) =>
+                          handleStatusChange(order.id, e.target.value as Order['status'])
+                        }
+                        className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent"
+                      >
+                        <option value="Confirmación de pago">Confirmación de pago</option>
+                        <option value="Pagado">Pagado</option>
+                        <option value="Entregado">Entregado</option>
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
     </div>
   );
 };
 
 export default AdminOrders;
+

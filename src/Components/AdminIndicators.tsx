@@ -14,6 +14,8 @@ import {
   Cell,
   Legend,
 } from 'recharts';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const AdminIndicators: React.FC = () => {
   const [productsByCategory, setProductsByCategory] = useState<{ name: string; count: number }[]>([]);
@@ -24,7 +26,15 @@ const AdminIndicators: React.FC = () => {
   const [totalClients, setTotalClients] = useState(0);
   const [totalTransactions, setTotalTransactions] = useState(0);
 
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
   useEffect(() => {
+    if (!user) {
+      navigate('/login'); // Redirige al login si no hay usuario autenticado
+      return;
+    }
+
     const fetchData = async () => {
       try {
         // Fetch products
@@ -91,7 +101,7 @@ const AdminIndicators: React.FC = () => {
     };
 
     fetchData();
-  }, []);
+  }, [user]);
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 

@@ -48,6 +48,21 @@ const ProductDetail: React.FC = () => {
     alert('Producto añadido al carrito.');
   };
 
+  const handleBuyNow = () => {
+    if (!user) {
+      alert('Por favor, primero inicia sesión para proceder con la compra.');
+      return false; // Bloquear la redirección
+    }
+    return true; // Permitir la redirección
+  };
+
+  const handleMercadoPagoClick = () => {
+    if (handleBuyNow()) {
+      console.log('Redirigiendo al pago de:', product?.name);
+      // Aquí puedes agregar cualquier lógica adicional para MercadoPago si es necesario.
+    }
+  };
+
   if (!product) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -66,7 +81,11 @@ const ProductDetail: React.FC = () => {
           <div className="flex flex-col lg:flex-row">
             <div className="w-full lg:w-1/2">
               <div className="h-96 bg-gray-100 flex items-center justify-center p-8">
-                <img src={product.image} alt={product.name} className="max-h-full max-w-full object-contain rounded-lg shadow-md" />
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="max-h-full max-w-full object-contain rounded-lg shadow-md"
+                />
               </div>
             </div>
             <div className="w-full lg:w-1/2 p-8">
@@ -74,7 +93,11 @@ const ProductDetail: React.FC = () => {
               <p className="text-lg text-gray-600 mb-6">{product.description}</p>
               <div className="flex items-center justify-between mb-6">
                 <p className="text-3xl font-bold text-indigo-600">${product.price}</p>
-                <p className={`text-sm font-semibold px-3 py-1 rounded-full ${product.stock > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                <p
+                  className={`text-sm font-semibold px-3 py-1 rounded-full ${
+                    product.stock > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}
+                >
                   {product.stock > 0 ? `Stock: ${product.stock}` : 'Agotado'}
                 </p>
               </div>
@@ -83,7 +106,8 @@ const ProductDetail: React.FC = () => {
               </p>
               <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-md">
                 <p className="text-yellow-800">
-                  <strong className="font-semibold">Nota:</strong> Por favor, asegúrate de ingresar correctamente el monto al realizar tu pago. Pagos incompletos no serán procesados.
+                  <strong className="font-semibold">Nota:</strong> Por favor, asegúrate de ingresar
+                  correctamente el monto al realizar tu pago. Pagos incompletos no serán procesados.
                 </p>
               </div>
               {product.stock > 0 && (
@@ -95,9 +119,9 @@ const ProductDetail: React.FC = () => {
                     Añadir al Carrito
                   </button>
                   <MercadoPagoButton
-                    amount={product.price} // Asegúrate de que `product.price` sea un número
+                    amount={product.price}
                     label="Comprar ahora"
-                    onClick={() => console.log('Redirigiendo al pago de:', product.name)}
+                    onClick={handleMercadoPagoClick} // Aquí pasamos la nueva función compatible
                   />
                 </div>
               )}

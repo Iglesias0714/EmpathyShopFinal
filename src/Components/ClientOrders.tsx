@@ -1,14 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { getOrdersFromFirestore, Order } from '../services/orderService';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { getProductByIdFromFirestore } from '../services/productService'; // Asegúrate de que este servicio existe para obtener el producto.
 
 const ClientOrders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<Record<string, any>>({});
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
+    if (!user) {
+      navigate('/'); // Redirige al home si no hay usuario autenticado
+      return;
+    }
+
     const fetchOrders = async () => {
       try {
         const ordersData = await getOrdersFromFirestore();
@@ -31,7 +38,7 @@ const ClientOrders: React.FC = () => {
       }
     };
     fetchOrders();
-  }, [user]);
+  }, [user, navigate]);
 
   return (
     <div className="container mx-auto px-4 py-8">
