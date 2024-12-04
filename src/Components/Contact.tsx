@@ -16,7 +16,7 @@ const Contact: React.FC = () => {
           <div className="space-y-4">
             <p className="text-gray-700">
               <strong className="block text-[#4a9c2d]">Correo Electrónico:</strong>
-              <span>contacto@empathyshop.com</span>
+              <span>20460269@colima.tecnm.mx</span>
             </p>
             <p className="text-gray-700">
               <strong className="block text-[#4a9c2d]">Teléfono:</strong>
@@ -41,7 +41,7 @@ const Contact: React.FC = () => {
       <div className="text-center mt-10">
         <button
           className="px-6 py-3 bg-gradient-to-r from-[#4a9c2d] to-blue-500 text-white text-lg font-semibold rounded-full shadow-lg hover:from-green-500 hover:to-blue-600 transition-transform transform hover:scale-105"
-          onClick={() => window.location.href = 'mailto:contacto@empathyshop.com'}
+          onClick={() => window.location.href = 'mailto:20460269@colima.tecnm.mx'}
         >
           Escríbenos
         </button>

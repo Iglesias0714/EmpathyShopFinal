@@ -1,142 +1,131 @@
 import React, { useEffect, useState } from 'react';
-import { getOrdersFromFirestore, updateOrderStatus, Order } from '../services/orderService';
+import { getOrdersFromFirestore, Order } from '../services/orderService';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { getProductByIdFromFirestore } from '../services/productService';
 
-const AdminOrders: React.FC = () => {
+const ClientOrders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
-
+  const [products, setProducts] = useState<Record<string, any>>({});
   const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) {
-      navigate('/login');
       return;
     }
 
     const fetchOrders = async () => {
       try {
         const ordersData = await getOrdersFromFirestore();
-        setOrders(ordersData);
+        const clientOrders = ordersData.filter((order) => order.clientId === user?.uid);
+        setOrders(clientOrders);
+
+        const productPromises = clientOrders.map(async (order) => {
+          const product = await getProductByIdFromFirestore(order.productId);
+          return { id: order.productId, data: product };
+        });
+        const productResults = await Promise.all(productPromises);
+        const productMap: Record<string, any> = {};
+        productResults.forEach(({ id, data }) => {
+          productMap[id] = data;
+        });
+        setProducts(productMap);
       } catch (error) {
         console.error('Error al obtener pedidos:', error);
-      } finally {
-        setLoading(false);
       }
     };
     fetchOrders();
   }, [user, navigate]);
 
-  const handleStatusChange = async (orderId: string, status: Order['status']) => {
-    try {
-      await updateOrderStatus(orderId, status);
-      setOrders((prev) =>
-        prev.map((order) =>
-          order.id === orderId ? { ...order, status } : order
-        )
-      );
-      alert('Estado actualizado con éxito.');
-    } catch (error) {
-      console.error('Error al actualizar estado:', error);
-      alert('Hubo un error al actualizar el estado.');
-    }
-  };
-
-  if (loading) {
+  if (!user) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-green-500"></div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
+        <div className="container mx-auto px-4">
+          <div className="bg-white rounded-lg shadow-xl overflow-hidden p-8">
+            <h1 className="text-3xl font-bold text-indigo-800 mb-6">Mis Pedidos</h1>
+            <p className="text-lg text-center text-gray-600">
+              Por favor inicia sesión para ver tus pedidos.
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 h-screen flex flex-col">
-      <h2 className="text-4xl font-bold text-center mb-6 text-green-700">Gestión de Pedidos</h2>
-      {orders.length === 0 ? (
-        <div className="flex-grow flex items-center justify-center bg-white rounded-lg shadow-md">
-          <p className="text-2xl text-gray-500">No hay pedidos registrados.</p>
-        </div>
-      ) : (
-        <div className="flex-grow overflow-hidden bg-white rounded-lg shadow-lg flex flex-col">
-          <div className="overflow-x-auto flex-grow">
-            <table className="w-full">
-              <thead className="bg-green-600 text-white text-sm uppercase">
-                <tr>
-                  <th className="py-4 px-6 text-left">Producto</th>
-                  <th className="py-4 px-6 text-left">Cliente</th>
-                  <th className="py-4 px-6 text-center">Estado</th>
-                  <th className="py-4 px-6 text-center">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="text-gray-600 text-sm">
-                {orders.map((order, index) => (
-                  <tr
-                    key={order.id}
-                    className={`border-b border-gray-200 hover:bg-gray-50 ${
-                      index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
-                    }`}
-                  >
-                    <td className="py-4 px-6">
-                      <div className="flex items-center space-x-4">
-                        {order.product && (
-                          <img
-                            src={order.product.image}
-                            alt={order.product.name}
-                            className="w-16 h-16 rounded-full object-cover border-2 border-green-200"
-                          />
-                        )}
-                        <div>
-                          <p className="font-medium text-gray-800 text-base">
-                            {order.product ? order.product.name : 'Producto desconocido'}
-                          </p>
-                          <p className="text-sm text-gray-500 truncate max-w-xs">
-                            {order.product ? order.product.description : 'Sin descripción'}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className="font-medium text-base">{order.clientName || 'Cliente desconocido'}</span>
-                    </td>
-                    <td className="py-4 px-6 text-center">
-                      <span
-                        className={`px-3 py-2 rounded-full text-sm ${
-                          order.status === 'Entregado'
-                            ? 'bg-blue-100 text-blue-800'
-                            : order.status === 'Pagado'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-yellow-100 text-yellow-800'
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
+      <div className="container mx-auto px-4">
+        <div className="bg-white rounded-lg shadow-xl overflow-hidden p-8">
+          <h1 className="text-3xl font-bold text-indigo-800 mb-6">Mis Pedidos</h1>
+          {orders.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-indigo-600 text-white text-sm uppercase">
+                  <tr>
+                    <th className="py-4 px-6 text-left">Producto</th>
+                    <th className="py-4 px-6 text-center">Estado</th>
+                    <th className="py-4 px-6 text-center">Fecha</th>
+                  </tr>
+                </thead>
+                <tbody className="text-gray-600 text-sm">
+                  {orders.map((order, index) => {
+                    const product = products[order.productId];
+                    return (
+                      <tr
+                        key={order.id}
+                        className={`border-b border-gray-200 hover:bg-gray-50 ${
+                          index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
                         }`}
                       >
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6 text-center">
-                      <select
-                        value={order.status}
-                        onChange={(e) =>
-                          handleStatusChange(order.id, e.target.value as Order['status'])
-                        }
-                        className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent"
-                      >
-                        <option value="Confirmación de pago">Confirmación de pago</option>
-                        <option value="Pagado">Pagado</option>
-                        <option value="Entregado">Entregado</option>
-                      </select>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                        <td className="py-4 px-6">
+                          <div className="flex items-center space-x-4">
+                            {product?.image && (
+                              <img
+                                src={product.image}
+                                alt={product.name}
+                                className="w-16 h-16 rounded-full object-cover border-2 border-indigo-200"
+                              />
+                            )}
+                            <div>
+                              <p className="font-medium text-gray-800 text-base">
+                                {product?.name || 'Producto desconocido'}
+                              </p>
+                              <p className="text-sm text-gray-500 truncate max-w-xs">
+                                {product?.description || 'Sin descripción'}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-6 text-center">
+                          <span
+                            className={`px-3 py-2 rounded-full text-sm ${
+                              order.status === 'Entregado'
+                                ? 'bg-blue-100 text-blue-800'
+                                : order.status === 'Pagado'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}
+                          >
+                            {order.status}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6 text-center text-gray-600">
+                          {new Date(order.createdAt).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="text-lg text-center text-gray-600">No tienes pedidos registrados.</p>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };
 
-export default AdminOrders;
-
+export default ClientOrders;
