@@ -29,3 +29,36 @@ export const getUsers = async () => {
     throw error;
   }
 };
+// Función para contar el total de usuarios
+export const getTotalUsers = async (): Promise<number> => {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'users'));
+    return querySnapshot.size; // Tamaño de la colección
+  } catch (error) {
+    console.error('Error al contar usuarios:', error instanceof Error ? error.message : error);
+    throw error;
+  }
+};
+
+// Función para contar usuarios por género
+export const getUsersByGender = async (): Promise<{ male: number; female: number }> => {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'users'));
+    let male = 0;
+    let female = 0;
+
+    querySnapshot.docs.forEach((doc) => {
+      const data = doc.data();
+      if (data.gender === 'male') {
+        male++;
+      } else if (data.gender === 'female') {
+        female++;
+      }
+    });
+
+    return { male, female };
+  } catch (error) {
+    console.error('Error al contar usuarios por género:', error instanceof Error ? error.message : error);
+    throw error;
+  }
+};

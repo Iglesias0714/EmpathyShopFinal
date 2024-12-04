@@ -14,7 +14,9 @@ import Dashboard from './Components/Dashboard';
 import { AuthProvider } from './context/AuthContext';
 import ProductDetail from './Components/ProductDetail';
 import ForgotPassword from './Components/ForgotPassword';
-import ProductStats from './Components/ProductStats';
+import AdminIndicators from './Components/AdminIndicators';
+import AdminOrders from './Components/AdminOrders';
+import ClientOrders from './Components/ClientOrders';
 
 const App: React.FC = () => {
   // Define el valor de `amount` para el componente `Cart`
@@ -45,6 +47,7 @@ const App: React.FC = () => {
               <Route path="/productos" element={<Productos />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/about" element={<About />} />
+              <Route path="/mis-pedidos" element={<ClientOrders />} />
               <Route
                 path="/cart"
                 element={<Cart amount={defaultAmount} />} // Pasamos `amount` aquí
@@ -59,7 +62,9 @@ const App: React.FC = () => {
               <Route path="/admin" element={<Dashboard />} /> {/* Panel principal del admin */}
               <Route path="/admin/usuarios" element={<AdminUsuarios />} />
               <Route path="/admin/productos" element={<AdminProductos />} />
-              <Route path="/admin/productos/estadisticas" element={<ProductStats />} />
+              <Route path="/admin/indicadores" element={<AdminIndicators />} />
+              <Route path="/admin/pedidos" element={<AdminOrders />} />
+
 
               {/* Ruta para el detalle de un producto */}
               <Route path="/producto/:id" element={<ProductDetail />} />

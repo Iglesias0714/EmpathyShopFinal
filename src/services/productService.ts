@@ -88,3 +88,38 @@ export const deleteProductFromFirestore = async (productId: string) => {
     throw error;
   }
 };
+// Función para obtener el conteo de productos por categoría
+export const getProductsByCategory = async (): Promise<Record<string, number>> => {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'products'));
+    const categoryCount: Record<string, number> = {};
+
+    querySnapshot.docs.forEach((doc) => {
+      const data = doc.data() as Product;
+      if (data.category) {
+        categoryCount[data.category] = (categoryCount[data.category] || 0) + 1;
+      }
+    });
+
+    return categoryCount;
+  } catch (error) {
+    console.error('Error al obtener productos por categoría:', error instanceof Error ? error.message : error);
+    throw error;
+  }
+};
+
+// Función para contar el total de productos disponibles
+export const getTotalAvailableProducts = async (): Promise<number> => {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'products'));
+    const totalAvailable = querySnapshot.docs.filter((doc) => {
+      const data = doc.data() as Product;
+      return data.stock > 0; // Contar solo productos con stock > 0
+    }).length;
+
+    return totalAvailable;
+  } catch (error) {
+    console.error('Error al contar productos disponibles:', error instanceof Error ? error.message : error);
+    throw error;
+  }
+};

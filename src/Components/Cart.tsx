@@ -42,13 +42,11 @@ const Cart: React.FC<CartProps> = ({ amount = 0 }) => {
 
   const handleRemoveItem = (index: number) => {
     if (!user) return;
-
     const cartKey = `cart_${user.uid}`;
     const updatedCart = [...cartItems];
     updatedCart.splice(index, 1);
     setCartItems(updatedCart);
     localStorage.setItem(cartKey, JSON.stringify(updatedCart));
-
     // Recalcular el total
     const newTotal = updatedCart.reduce(
       (acc, item) => acc + item.product.price * item.quantity,
@@ -58,72 +56,88 @@ const Cart: React.FC<CartProps> = ({ amount = 0 }) => {
   };
 
   if (isLoading) {
-    return <p className="text-center text-gray-600">Cargando carrito...</p>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="rounded-full bg-indigo-500 h-12 w-12 mb-4"></div>
+          <div className="text-xl font-semibold text-indigo-700">Cargando carrito...</div>
+        </div>
+      </div>
+    );
   }
 
   if (!user) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Carrito de Compras</h1>
-        <p className="text-lg text-center text-gray-600">
-          Por favor inicia sesión para ver tu carrito.
-        </p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
+        <div className="container mx-auto px-4">
+          <div className="bg-white rounded-lg shadow-xl overflow-hidden p-8">
+            <h1 className="text-3xl font-bold text-indigo-800 mb-6">Carrito de Compras</h1>
+            <p className="text-lg text-center text-gray-600">
+              Por favor inicia sesión para ver tu carrito.
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Carrito de Compras</h1>
-      {cartItems.length > 0 ? (
-        <div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {cartItems.map((item, index) => (
-              <div key={index} className="border p-4 rounded shadow">
-                <div className="w-full h-48 bg-gray-100 flex justify-center items-center overflow-hidden rounded">
-                  <img
-                    src={item.product.image || '/placeholder.png'}
-                    alt={item.product.name || 'Producto'}
-                    className="max-h-full max-w-full object-contain"
-                  />
-                </div>
-                <h3 className="text-xl font-bold mt-4">{item.product.name || 'Producto'}</h3>
-                <p className="text-gray-700">{item.product.description || 'Sin descripción'}</p>
-                <p className="text-green-600 font-bold text-lg">${item.product.price}</p>
-                <p className="text-sm">Cantidad: {item.quantity}</p>
-                <button
-                  onClick={() => handleRemoveItem(index)}
-                  className="mt-4 text-red-500 font-bold hover:text-red-700 transition-colors duration-200"
-                >
-                  Eliminar
-                </button>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
+      <div className="container mx-auto px-4">
+        <div className="bg-white rounded-lg shadow-xl overflow-hidden p-8">
+          <h1 className="text-3xl font-bold text-indigo-800 mb-6">Carrito de Compras</h1>
+          {cartItems.length > 0 ? (
+            <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {cartItems.map((item, index) => (
+                  <div key={index} className="border border-indigo-100 p-4 rounded-lg shadow-md bg-white">
+                    <div className="w-full h-48 bg-gray-100 flex justify-center items-center overflow-hidden rounded-lg">
+                      <img
+                        src={item.product.image || '/placeholder.png'}
+                        alt={item.product.name || 'Producto'}
+                        className="max-h-full max-w-full object-contain"
+                      />
+                    </div>
+                    <h3 className="text-xl font-bold mt-4 text-indigo-800">{item.product.name || 'Producto'}</h3>
+                    <p className="text-gray-600">{item.product.description || 'Sin descripción'}</p>
+                    <p className="text-indigo-600 font-bold text-lg">${item.product.price}</p>
+                    <p className="text-sm text-gray-500">Cantidad: {item.quantity}</p>
+                    <button
+                      onClick={() => handleRemoveItem(index)}
+                      className="mt-4 text-red-500 font-bold hover:text-red-700 transition-colors duration-200"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <div className="text-center bg-yellow-100 text-yellow-800 py-4 rounded-md mt-6">
-            <p>
-              <strong>Nota:</strong> Por favor, asegúrate de ingresar correctamente el monto total al
-              realizar tu pago. Pagos incompletos no serán procesados.
-            </p>
-          </div>
-          <div className="text-right mt-6">
-            <h2 className="text-2xl font-bold">
-              Total: <span className="text-green-600">${total.toFixed(2)}</span>
-            </h2>
-          </div>
-          <div className="mt-6 flex justify-center">
-            <MercadoPagoButton
-              amount={total}
-              label="Proceder a la Compra"
-              onClick={() => console.log('Redirigiendo al pago con Mercado Pago')}
-            />
-          </div>
+              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-md mt-6">
+                <p className="text-yellow-800">
+                  <strong className="font-semibold">Nota:</strong> Por favor, asegúrate de ingresar correctamente el monto total al
+                  realizar tu pago. Pagos incompletos no serán procesados.
+                </p>
+              </div>
+              <div className="text-right mt-6">
+                <h2 className="text-2xl font-bold text-indigo-800">
+                  Total: <span className="text-indigo-600">${total.toFixed(2)}</span>
+                </h2>
+              </div>
+              <div className="mt-6 flex justify-center">
+                <MercadoPagoButton
+                  amount={total}
+                  label="Proceder a la Compra"
+                  onClick={() => console.log('Redirigiendo al pago con Mercado Pago')}
+                />
+              </div>
+            </div>
+          ) : (
+            <p className="text-lg text-center text-gray-600">Tu carrito está vacío.</p>
+          )}
         </div>
-      ) : (
-        <p className="text-lg text-center text-gray-600">Tu carrito está vacío.</p>
-      )}
+      </div>
     </div>
   );
 };
 
 export default Cart;
+

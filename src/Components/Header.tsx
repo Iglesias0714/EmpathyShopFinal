@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ShoppingCart, User, LogOut, Info, Phone, Package } from 'lucide-react';
+import { ShoppingCart, User, LogOut, Info, Phone, Package, List } from 'lucide-react';
 
 const Header: React.FC = () => {
   const { user, username, role, logout } = useAuth();
@@ -29,15 +29,26 @@ const Header: React.FC = () => {
                 </Link>
               </li>
               {role !== 'administrador' && (
-                <li>
-                  <Link
-                    to="/cart"
-                    className="hover:text-[#d9f99d] transition-colors flex items-center space-x-1"
-                  >
-                    <ShoppingCart size={18} />
-                    <span>Carrito</span>
-                  </Link>
-                </li>
+                <>
+                  <li>
+                    <Link
+                      to="/cart"
+                      className="hover:text-[#d9f99d] transition-colors flex items-center space-x-1"
+                    >
+                      <ShoppingCart size={18} />
+                      <span>Carrito</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/mis-pedidos"
+                      className="hover:text-[#d9f99d] transition-colors flex items-center space-x-1"
+                    >
+                      <List size={18} />
+                      <span>Mis Pedidos</span>
+                    </Link>
+                  </li>
+                </>
               )}
               <li>
                 <Link
