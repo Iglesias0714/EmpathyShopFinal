@@ -25,6 +25,7 @@ const AdminIndicators: React.FC = () => {
   const [totalProducts, setTotalProducts] = useState(0);
   const [totalClients, setTotalClients] = useState(0);
   const [totalTransactions, setTotalTransactions] = useState(0);
+  const [totalProductsSold, setTotalProductsSold] = useState(0); // Nuevo estado
 
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -37,6 +38,8 @@ const AdminIndicators: React.FC = () => {
 
     const fetchData = async () => {
       try {
+        const adminEmail = 'luisiglebibi@gmail.com'; // Correo del administrador
+
         // Fetch products
         const productsSnapshot = await getDocs(collection(db, 'products'));
         const products = productsSnapshot.docs.map((doc) => ({
@@ -55,7 +58,9 @@ const AdminIndicators: React.FC = () => {
 
         // Fetch clients
         const clientsSnapshot = await getDocs(collection(db, 'users'));
-        const clients = clientsSnapshot.docs.map((doc) => doc.data());
+        const clients = clientsSnapshot.docs
+          .map((doc) => doc.data())
+          .filter((client: any) => client.email !== adminEmail); // Excluir al administrador
         setTotalClients(clients.length);
 
         const genderCount = { Hombres: 0, Mujeres: 0 };
@@ -75,6 +80,7 @@ const AdminIndicators: React.FC = () => {
 
         const categoryTransactions: { [key: string]: number } = {};
         const productTransactions: { [key: string]: number } = {};
+        let productsSoldCount = 0;
 
         orders.forEach((order: any) => {
           const product = products.find((p) => p.id === order.productId);
@@ -83,6 +89,7 @@ const AdminIndicators: React.FC = () => {
               (categoryTransactions[product.category] || 0) + 1;
             productTransactions[product.name] =
               (productTransactions[product.name] || 0) + 1;
+            productsSoldCount += 1; // Contar cada producto vendido
           }
         });
 
@@ -95,6 +102,8 @@ const AdminIndicators: React.FC = () => {
             .map(([name, count]) => ({ name, count }))
             .sort((a, b) => b.count - a.count)
         );
+
+        setTotalProductsSold(productsSoldCount); // Actualizar el estado del total de productos vendidos
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -212,6 +221,9 @@ const AdminIndicators: React.FC = () => {
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
+            <p className="text-center text-gray-600 mt-4">
+              Total de Productos Comprados: <span className="font-bold">{totalProductsSold}</span>
+            </p>
           </div>
         </div>
       </div>

@@ -20,34 +20,38 @@ const AdminUsuarios: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [totals, setTotals] = useState({ totalUsers: 0, totalMen: 0, totalWomen: 0 });
 
-  const { user } = useAuth(); // Obtener el estado de usuario desde el contexto
+  const { user, role } = useAuth(); // Obtener datos del contexto
   const navigate = useNavigate(); // Hook para redirigir
 
   useEffect(() => {
     // Redirigir al login si el usuario no está autenticado
-    if (!user) {
+    if (!user || role !== 'administrador') {
       navigate('/login');
       return;
     }
 
     const fetchUsers = async () => {
       try {
+        const adminEmail = 'luisiglebibi@gmail.com'; // Correo del administrador
         const usersCollection = collection(db, 'users');
         const usersSnapshot = await getDocs(usersCollection);
-        const usersList = usersSnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            email: data.email || 'No disponible',
-            username: data.username || 'Sin Nombre',
-            gender: data.gender || 'No especificado',
-            phone: data.phone || 'No disponible',
-            createdAt: data.createdAt,
-          } as User; // Asegurar el tipo User
-        });
+        const usersList = usersSnapshot.docs
+          .map((doc) => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              email: data.email || 'No disponible',
+              username: data.username || 'Sin Nombre',
+              gender: data.gender || 'No especificado',
+              phone: data.phone || 'No disponible',
+              createdAt: data.createdAt,
+            } as User; // Asegurar el tipo User
+          })
+          .filter((user) => user.email !== adminEmail); // Excluir al administrador
+
         setUsers(usersList);
 
-        // Calcular totales
+        // Calcular totales excluyendo al administrador
         const totalUsers = usersList.length;
         const totalMen = usersList.filter((user) => user.gender.toLowerCase() === 'hombre').length;
         const totalWomen = usersList.filter((user) => user.gender.toLowerCase() === 'mujer').length;
@@ -61,7 +65,7 @@ const AdminUsuarios: React.FC = () => {
     };
 
     fetchUsers();
-  }, [user, navigate]); // Escuchar cambios en el usuario o la navegación
+  }, [user, navigate, role]);
 
   const handleDelete = async (userId: string) => {
     const confirmDelete = window.confirm('¿Estás seguro de que deseas eliminar este usuario?');

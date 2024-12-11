@@ -1,7 +1,26 @@
-import { collection, addDoc, getDocs, deleteDoc, doc, query, where, updateDoc } from 'firebase/firestore';
+import {
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  query,
+  where,
+  updateDoc,
+} from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
 
+// Tipo para representar un usuario
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  createdAt: Date | string;
+}
+
 const userCollection = collection(db, 'users');
+const adminEmail = 'luisiglebibi@gmail.com'; // Correo del administrador
 
 // Función para agregar un usuario
 export const addUser = async (name: string, email: string, role: string) => {
@@ -18,14 +37,19 @@ export const addUser = async (name: string, email: string, role: string) => {
   }
 };
 
-// Función para obtener los usuarios
-export const getUsers = async () => {
+// Función para obtener los usuarios, excluyendo al administrador
+export const getUsers = async (): Promise<User[]> => {
   try {
     const userSnapshot = await getDocs(userCollection);
-    const userList = userSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const userList = userSnapshot.docs
+      .map((doc) => ({
+        id: doc.id,
+        ...(doc.data() as Omit<User, 'id'>), // Forzamos el tipo de los datos obtenidos
+      }))
+      .filter((user) => user.email !== adminEmail); // Excluir al administrador
     return userList;
   } catch (error) {
-    console.error('Error al obtener los usuarios: ', error);
+    console.error('Error al obtener los usuarios:', error);
     throw error;
   }
 };
@@ -68,36 +92,49 @@ const removeUserFromOrders = async (userId: string) => {
   }
 };
 
-// Función para contar el total de usuarios
+// Función para contar el total de usuarios excluyendo al administrador
 export const getTotalUsers = async (): Promise<number> => {
   try {
     const querySnapshot = await getDocs(collection(db, 'users'));
-    return querySnapshot.size; // Tamaño de la colección
+    const totalUsers = querySnapshot.docs.filter(
+      (doc) => (doc.data() as User).email !== adminEmail
+    ).length; // Excluir al administrador
+    return totalUsers;
   } catch (error) {
-    console.error('Error al contar usuarios:', error instanceof Error ? error.message : error);
+    console.error(
+      'Error al contar usuarios:',
+      error instanceof Error ? error.message : error
+    );
     throw error;
   }
 };
 
-// Función para contar usuarios por género
+// Función para contar usuarios por género excluyendo al administrador
 export const getUsersByGender = async (): Promise<{ male: number; female: number }> => {
   try {
     const querySnapshot = await getDocs(collection(db, 'users'));
     let male = 0;
     let female = 0;
 
+    // Iterar por los documentos y contar usuarios según el género
     querySnapshot.docs.forEach((doc) => {
-      const data = doc.data();
-      if (data.gender === 'male') {
-        male++;
-      } else if (data.gender === 'female') {
-        female++;
+      const data = doc.data(); // Obtener los datos del documento
+      if (typeof data.gender === 'string') {
+        if (data.gender.toLowerCase() === 'male') {
+          male++;
+        } else if (data.gender.toLowerCase() === 'female') {
+          female++;
+        }
       }
     });
 
     return { male, female };
   } catch (error) {
-    console.error('Error al contar usuarios por género:', error instanceof Error ? error.message : error);
+    console.error(
+      'Error al contar usuarios por género:',
+      error instanceof Error ? error.message : error
+    );
     throw error;
   }
 };
+
