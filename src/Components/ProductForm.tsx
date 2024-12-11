@@ -12,7 +12,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ userId }) => {
   const [price, setPrice] = useState<number | ''>(''); // Acepta tanto número como cadena vacía
   const [image, setImage] = useState('');
   const [category, setCategory] = useState<Product['category']>('movilidad');
-  const [stock, setStock] = useState<number>(0); // Añadido para cumplir con la validación
+  const [stock, setStock] = useState<number | ''>(''); // Acepta tanto número como cadena vacía
   const [loading, setLoading] = useState(false); // Indicador de carga
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,7 +23,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ userId }) => {
       return;
     }
 
-    if (!name || !description || !price || !category) {
+    if (!name || !description || !price || !category || stock === '') {
       alert('Por favor, completa todos los campos obligatorios.');
       return;
     }
@@ -38,18 +38,18 @@ const ProductForm: React.FC<ProductFormProps> = ({ userId }) => {
         price: Number(price), // Asegurar que el precio sea un número
         image,
         category,
-        stock, // Asegurarse de incluir el stock
+        stock: Number(stock), // Asegurar que el stock sea un número
       });
 
       alert('Producto agregado con éxito.');
-      
+
       // Restablecer los campos del formulario
       setName('');
       setDescription('');
       setPrice('');
       setImage('');
       setCategory('movilidad');
-      setStock(0); // Restablecer el stock
+      setStock(''); // Restablecer el stock
     } catch (error) {
       console.error('Error al agregar el producto:', error);
       alert('Hubo un error al agregar el producto. Intenta de nuevo.');
@@ -79,9 +79,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ userId }) => {
       />
       <input
         type="number"
-        placeholder="Precio"
-        value={price}
-        onChange={(e) => setPrice(e.target.valueAsNumber)}
+        placeholder="Precio (en USD)"
+        value={price === '' ? '' : String(price)}
+        onChange={(e) => setPrice(e.target.valueAsNumber || '')}
         className="w-full p-2 border rounded"
         required
       />
@@ -106,8 +106,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ userId }) => {
       <input
         type="number"
         placeholder="Cantidad en stock"
-        value={stock}
-        onChange={(e) => setStock(e.target.valueAsNumber)}
+        value={stock === '' ? '' : String(stock)}
+        onChange={(e) => setStock(e.target.valueAsNumber || '')}
         className="w-full p-2 border rounded"
         required
       />

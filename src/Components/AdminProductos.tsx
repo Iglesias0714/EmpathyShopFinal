@@ -139,19 +139,20 @@ const AdminProductos: React.FC = () => {
         placeholder="Descripción del producto"
       />
       <input
-        type="number"
-        value={data.price || 0}
-        onChange={(e) => setData({ ...data, price: Number(e.target.value) })}
-        className="w-full p-2 border rounded mb-2"
-        placeholder="Precio"
-      />
-      <input
-        type="number"
-        value={data.stock || 0}
-        onChange={(e) => setData({ ...data, stock: Number(e.target.value) })}
-        className="w-full p-2 border rounded mb-2"
-        placeholder="Cantidad en stock"
-      />
+  type="number"
+  value={data.price !== undefined ? data.price.toString() : ''} // Convertir número a cadena o mantener vacío
+  onChange={(e) => setData({ ...data, price: e.target.value ? Number(e.target.value) : undefined })}
+  className="w-full p-2 border rounded mb-2"
+  placeholder="Precio (en MXN)"
+/>
+<input
+  type="number"
+  value={data.stock !== undefined ? data.stock.toString() : ''} // Convertir número a cadena o mantener vacío
+  onChange={(e) => setData({ ...data, stock: e.target.value ? Number(e.target.value) : undefined })}
+  className="w-full p-2 border rounded mb-2"
+  placeholder="Cantidad en stock"
+/>
+
       <input
         type="text"
         value={data.image || ''}
@@ -162,7 +163,8 @@ const AdminProductos: React.FC = () => {
       <select
         value={data.category || ''}
         onChange={(e) => setData({ ...data, category: e.target.value })}
-        className="w-full p-2 border rounded mb-2 appearance-none bg-white">
+        className="w-full p-2 border rounded mb-2"
+      >
         <option value="">Seleccionar Categoría</option>
         <option value="movilidad">Movilidad</option>
         <option value="auditivos">Auditivos</option>
