@@ -5,14 +5,10 @@ import { createOrder } from '../services/orderService';
 import { updateProductStock } from '../services/productService';
 import MercadoPagoButton from './MercadoPagoButton';
 
-interface CartProps {
-  amount?: number;
-}
-
-const Cart: React.FC<CartProps> = ({ amount = 0 }) => {
+const Cart: React.FC = () => {
   const { user } = useAuth();
   const [cartItems, setCartItems] = useState<{ product: Product; quantity: number }[]>([]);
-  const [total, setTotal] = useState(amount);
+  const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -132,7 +128,9 @@ const Cart: React.FC<CartProps> = ({ amount = 0 }) => {
                   Simular Compra
                 </button>
                 <MercadoPagoButton
+                  title="Carrito de Compras"
                   amount={total}
+                  quantity={1}
                   label="Proceder a la Compra"
                   onClick={() => console.log('Redirigiendo al pago con Mercado Pago')}
                 />

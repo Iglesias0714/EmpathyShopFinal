@@ -1,9 +1,13 @@
 import React from "react";
 
 interface MercadoPagoButtonProps {
+  title?: string; // Hacer opcional
   amount: number; // Total a pagar
+  quantity?: number; // Hacer opcional
   label?: string; // Texto del botón (opcional)
+  onClick?: () => void; // Evento opcional al hacer clic
 }
+
 
 const MercadoPagoButton: React.FC<MercadoPagoButtonProps> = ({
   amount,
