@@ -17,6 +17,8 @@ import ForgotPassword from './Components/ForgotPassword';
 import AdminIndicators from './Components/AdminIndicators';
 import AdminOrders from './Components/AdminOrders';
 import ClientOrders from './Components/ClientOrders';
+import SuccessPage from './Components/SuccessPage';
+import FailurePage from './Components/FailurePage';
 
 const App: React.FC = () => {
   // Define el valor de `amount` para el componente `Cart`
@@ -48,10 +50,9 @@ const App: React.FC = () => {
               <Route path="/contact" element={<Contact />} />
               <Route path="/about" element={<About />} />
               <Route path="/mis-pedidos" element={<ClientOrders />} />
-              <Route
-                path="/cart"
-                element={<Cart amount={defaultAmount} />} // Pasamos `amount` aquí
-              />
+              <Route path="/cart" element={<Cart amount={defaultAmount} />} />
+              <Route path="/success" element={<SuccessPage />} />
+              <Route path="/failure" element={<FailurePage />} />
 
               {/* Rutas de autenticación */}
               <Route path="/login" element={<Login />} />
