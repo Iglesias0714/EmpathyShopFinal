@@ -1,4 +1,4 @@
-import { collection, addDoc, getDocs } from 'firebase/firestore'; // Eliminé 'query' y 'where'
+import { collection, addDoc, getDocs, deleteDoc, doc, query, where, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
 
 const userCollection = collection(db, 'users');
@@ -29,6 +29,45 @@ export const getUsers = async () => {
     throw error;
   }
 };
+
+// Función para eliminar un usuario de Firestore
+export const deleteUserFromFirestore = async (userId: string) => {
+  try {
+    const userRef = doc(db, 'users', userId);
+
+    // Eliminar el usuario
+    await deleteDoc(userRef);
+
+    console.log(`Usuario con ID ${userId} eliminado con éxito.`);
+
+    // Actualizar los pedidos relacionados
+    await removeUserFromOrders(userId);
+  } catch (error) {
+    console.error('Error al eliminar el usuario: ', error);
+    throw error;
+  }
+};
+
+// Función para actualizar los pedidos relacionados con un usuario eliminado
+const removeUserFromOrders = async (userId: string) => {
+  try {
+    const ordersCollection = collection(db, 'orders');
+    const q = query(ordersCollection, where('clientId', '==', userId));
+    const ordersSnapshot = await getDocs(q);
+
+    const updates = ordersSnapshot.docs.map(async (orderDoc) => {
+      const orderRef = doc(db, 'orders', orderDoc.id);
+      await updateDoc(orderRef, { clientName: 'Usuario eliminado', clientId: null });
+    });
+
+    await Promise.all(updates);
+    console.log(`Pedidos asociados al usuario ${userId} han sido actualizados.`);
+  } catch (error) {
+    console.error('Error al actualizar los pedidos después de eliminar un usuario:', error);
+    throw error;
+  }
+};
+
 // Función para contar el total de usuarios
 export const getTotalUsers = async (): Promise<number> => {
   try {

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { getOrdersFromFirestore, Order } from '../services/orderService';
+import { getOrdersFromFirestore, updateOrderStatus, Order } from '../services/orderService';
+import { updateProductStock } from '../services/productService'; // Importamos la función para actualizar el stock
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { getProductByIdFromFirestore } from '../services/productService'; // Asegúrate de que este servicio existe para obtener el producto.
+import { getProductByIdFromFirestore } from '../services/productService';
 
 const ClientOrders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -38,6 +39,37 @@ const ClientOrders: React.FC = () => {
     fetchOrders();
   }, [user, navigate]);
 
+  const handleClientCancelOrder = async (orderId: string, productId: string) => {
+    try {
+      // Actualizamos el estado del pedido
+      await updateOrderStatus(orderId, 'Cancelado por el cliente', productId);
+
+      // Incrementamos el stock del producto al cancelar
+      if (products[productId]) {
+        const updatedStock = (products[productId].stock || 0) + 1;
+        await updateProductStock(productId, updatedStock);
+        setProducts((prev) => ({
+          ...prev,
+          [productId]: { ...prev[productId], stock: updatedStock },
+        }));
+      }
+
+      // Actualizamos el estado local del pedido
+      setOrders((prev) =>
+        prev.map((order) =>
+          order.id === orderId
+            ? { ...order, status: 'Cancelado por el cliente' }
+            : order
+        )
+      );
+
+      alert('Pedido cancelado exitosamente.');
+    } catch (error) {
+      console.error('Error al cancelar el pedido:', error);
+      alert('Hubo un error al cancelar el pedido.');
+    }
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
@@ -63,8 +95,9 @@ const ClientOrders: React.FC = () => {
               <thead className="bg-gray-100">
                 <tr>
                   <th className="px-4 py-2 text-left">Producto</th>
-                  <th className="px-4 py-2 text-left">Estado</th>
-                  <th className="px-4 py-2 text-left">Fecha</th>
+                  <th className="px-4 py-2 text-center">Estado</th>
+                  <th className="px-4 py-2 text-center">Fecha</th>
+                  <th className="px-4 py-2 text-center">Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -87,21 +120,35 @@ const ClientOrders: React.FC = () => {
                           </p>
                         </div>
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-2 text-center">
                         <span
                           className={`px-3 py-1 rounded-full text-white ${
                             order.status === 'Pagado'
                               ? 'bg-green-500'
                               : order.status === 'Entregado'
                               ? 'bg-blue-500'
+                              : order.status === 'Cancelado por el cliente'
+                              ? 'bg-red-500'
                               : 'bg-yellow-500'
                           }`}
                         >
                           {order.status}
                         </span>
                       </td>
-                      <td className="px-4 py-2 text-gray-600">
+                      <td className="px-4 py-2 text-center text-gray-600">
                         {new Date(order.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-2 text-center">
+                        {order.status === 'Cancelado por el cliente' || order.status === 'Cancelado por el administrador' ? (
+                          <p className="text-gray-500 text-sm">Sin acciones</p>
+                        ) : (
+                          <button
+                            onClick={() => handleClientCancelOrder(order.id, order.productId)}
+                            className="bg-red-500 text-white py-2 px-4 rounded text-sm hover:bg-red-700 transition"
+                          >
+                            Cancelar Pedido
+                          </button>
+                        )}
                       </td>
                     </tr>
                   );

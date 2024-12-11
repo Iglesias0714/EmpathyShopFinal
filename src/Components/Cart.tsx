@@ -1,22 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { Product } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { createOrder } from '../services/orderService';
+import { updateProductStock } from '../services/productService';
 import MercadoPagoButton from './MercadoPagoButton';
 
 interface CartProps {
-  amount?: number; // Agregamos `amount` como una propiedad opcional
+  amount?: number;
 }
 
 const Cart: React.FC<CartProps> = ({ amount = 0 }) => {
-  const { user } = useAuth(); // Información del usuario autenticado
+  const { user } = useAuth();
   const [cartItems, setCartItems] = useState<{ product: Product; quantity: number }[]>([]);
-  const [total, setTotal] = useState(amount); // Usamos `amount` como valor inicial para `total`
-  const [isLoading, setIsLoading] = useState(true); // Estado para mostrar el proceso de carga
+  const [total, setTotal] = useState(amount);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
       try {
-        const cartKey = `cart_${user.uid}`; // Clave específica para cada usuario
+        const cartKey = `cart_${user.uid}`;
         const storedCart = JSON.parse(localStorage.getItem(cartKey) || '[]') as {
           product: Product;
           quantity: number;
@@ -24,7 +26,6 @@ const Cart: React.FC<CartProps> = ({ amount = 0 }) => {
 
         setCartItems(storedCart);
 
-        // Calcular el total del carrito
         const cartTotal = storedCart.reduce(
           (acc, item) => acc + item.product.price * item.quantity,
           0
@@ -33,26 +34,39 @@ const Cart: React.FC<CartProps> = ({ amount = 0 }) => {
       } catch (error) {
         console.error('Error al cargar el carrito:', error);
       } finally {
-        setIsLoading(false); // Terminar el proceso de carga
+        setIsLoading(false);
       }
     } else {
-      setIsLoading(false); // Si no hay usuario, terminar el proceso de carga
+      setIsLoading(false);
     }
   }, [user]);
 
-  const handleRemoveItem = (index: number) => {
+  const handleSimulatePurchase = async () => {
     if (!user) return;
-    const cartKey = `cart_${user.uid}`;
-    const updatedCart = [...cartItems];
-    updatedCart.splice(index, 1);
-    setCartItems(updatedCart);
-    localStorage.setItem(cartKey, JSON.stringify(updatedCart));
-    // Recalcular el total
-    const newTotal = updatedCart.reduce(
-      (acc, item) => acc + item.product.price * item.quantity,
-      0
-    );
-    setTotal(newTotal);
+
+    try {
+      for (const item of cartItems) {
+        await createOrder({
+          clientId: user.uid,
+          productId: item.product.id,
+          status: 'Confirmación de pago',
+          createdAt: new Date().toISOString(),
+        });
+
+        const newStock = item.product.stock - item.quantity;
+        await updateProductStock(item.product.id, newStock);
+      }
+
+      alert('Compra simulada exitosamente.');
+
+      const cartKey = `cart_${user.uid}`;
+      localStorage.removeItem(cartKey);
+      setCartItems([]);
+      setTotal(0);
+    } catch (error) {
+      console.error('Error al simular compra:', error);
+      alert('Hubo un error al simular la compra.');
+    }
   };
 
   if (isLoading) {
@@ -102,27 +116,21 @@ const Cart: React.FC<CartProps> = ({ amount = 0 }) => {
                     <p className="text-gray-600">{item.product.description || 'Sin descripción'}</p>
                     <p className="text-indigo-600 font-bold text-lg">${item.product.price}</p>
                     <p className="text-sm text-gray-500">Cantidad: {item.quantity}</p>
-                    <button
-                      onClick={() => handleRemoveItem(index)}
-                      className="mt-4 text-red-500 font-bold hover:text-red-700 transition-colors duration-200"
-                    >
-                      Eliminar
-                    </button>
                   </div>
                 ))}
-              </div>
-              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-md mt-6">
-                <p className="text-yellow-800">
-                  <strong className="font-semibold">Nota:</strong> Por favor, asegúrate de ingresar correctamente el monto total al
-                  realizar tu pago. Pagos incompletos no serán procesados.
-                </p>
               </div>
               <div className="text-right mt-6">
                 <h2 className="text-2xl font-bold text-indigo-800">
                   Total: <span className="text-indigo-600">${total.toFixed(2)}</span>
                 </h2>
               </div>
-              <div className="mt-6 flex justify-center">
+              <div className="mt-6 flex justify-between">
+                <button
+                  onClick={handleSimulatePurchase}
+                  className="bg-yellow-500 text-white py-2 px-4 rounded text-sm hover:bg-yellow-600 transition"
+                >
+                  Simular Compra
+                </button>
                 <MercadoPagoButton
                   amount={total}
                   label="Proceder a la Compra"
@@ -140,4 +148,3 @@ const Cart: React.FC<CartProps> = ({ amount = 0 }) => {
 };
 
 export default Cart;
-

@@ -34,10 +34,17 @@ const AdminUsuarios: React.FC = () => {
       try {
         const usersCollection = collection(db, 'users');
         const usersSnapshot = await getDocs(usersCollection);
-        const usersList = usersSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as User[];
+        const usersList = usersSnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            email: data.email || 'No disponible',
+            username: data.username || 'Sin Nombre',
+            gender: data.gender || 'No especificado',
+            phone: data.phone || 'No disponible',
+            createdAt: data.createdAt,
+          } as User; // Asegurar el tipo User
+        });
         setUsers(usersList);
 
         // Calcular totales
@@ -124,7 +131,7 @@ const AdminUsuarios: React.FC = () => {
                 <tbody className="divide-y divide-gray-200">
                   {users.map((user) => (
                     <tr key={user.id} className="hover:bg-gray-50 transition duration-150 ease-in-out">
-                      <td className="px-6 py-4 whitespace-nowrap">{user.username || 'Sin Nombre'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{user.username}</td>
                       <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
                       <td className="px-6 py-4 whitespace-nowrap">{user.gender}</td>
                       <td className="px-6 py-4 whitespace-nowrap">{user.phone}</td>

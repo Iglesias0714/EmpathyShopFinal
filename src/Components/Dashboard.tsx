@@ -1,8 +1,19 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Users, Package, PieChart, ClipboardList } from 'lucide-react'; // Agregamos ClipboardList para representar el icono del pedido
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Users, Package, PieChart, ClipboardList } from 'lucide-react'; // Iconos
+import { useAuth } from '../context/AuthContext'; // Hook de autenticación
 
 const Dashboard: React.FC = () => {
+  const { user } = useAuth(); // Obtén el usuario actual
+  const navigate = useNavigate();
+
+  // Efecto para redirigir si el usuario no está autenticado
+  useEffect(() => {
+    if (!user) {
+      navigate('/'); // Redirigir al inicio de sesión
+    }
+  }, [user, navigate]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
       <div className="container mx-auto px-4">
@@ -35,7 +46,7 @@ const Dashboard: React.FC = () => {
             <h3 className="text-xl font-bold text-gray-700">Indicadores Generales</h3>
           </Link>
 
-          {/* Nuevo enlace para gestionar pedidos */}
+          {/* Enlace para gestionar pedidos */}
           <Link
             to="/admin/pedidos"
             className="bg-white shadow-lg rounded-lg p-6 text-center hover:shadow-xl transition duration-300 ease-in-out"

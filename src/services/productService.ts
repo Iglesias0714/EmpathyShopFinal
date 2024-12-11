@@ -67,6 +67,10 @@ export const updateProductInFirestore = async (
 
 // Función para actualizar el stock de un producto
 export const updateProductStock = async (productId: string, newStock: number) => {
+  if (newStock < 0) {
+    throw new Error('El stock no puede ser negativo.');
+  }
+
   try {
     const productRef = doc(db, 'products', productId);
     await updateDoc(productRef, { stock: newStock });
@@ -88,6 +92,7 @@ export const deleteProductFromFirestore = async (productId: string) => {
     throw error;
   }
 };
+
 // Función para obtener el conteo de productos por categoría
 export const getProductsByCategory = async (): Promise<Record<string, number>> => {
   try {
