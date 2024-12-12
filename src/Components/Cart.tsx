@@ -6,10 +6,10 @@ import { updateProductStock } from '../services/productService';
 import MercadoPagoButton from './MercadoPagoButton';
 
 interface CartProps {
-  amount: number; // Aseguramos que esta propiedad es requerida
+  amount?: number;
 }
 
-const Cart: React.FC<CartProps> = ({ amount }) => {
+const Cart: React.FC<CartProps> = ({ amount = 0 }) => {
   const { user } = useAuth();
   const [cartItems, setCartItems] = useState<{ product: Product; quantity: number }[]>([]);
   const [total, setTotal] = useState(amount);

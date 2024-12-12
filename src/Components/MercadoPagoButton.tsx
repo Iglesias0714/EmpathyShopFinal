@@ -8,15 +8,14 @@ interface MercadoPagoButtonProps {
   onClick?: () => void; // Evento opcional al hacer clic
 }
 
-
 const MercadoPagoButton: React.FC<MercadoPagoButtonProps> = ({
   amount,
   label = "Pagar con Mercado Pago",
 }) => {
   const handlePayment = () => {
-    // Link de pago con la cantidad dinámica
-    const paymentUrl = `link.mercadopago.com.mx/empathysshop?amount=${amount}`;
-    window.open(paymentUrl, "_blank"); // Abre el link en una nueva pestaña
+    // Usar el nuevo link de pago dinámico
+    const paymentUrl = `https://link.mercadopago.com.mx/empathysshop?amount=${amount}`;
+    window.open(paymentUrl, "_blank"); // Abrir el link en una nueva pestaña
   };
 
   return (
